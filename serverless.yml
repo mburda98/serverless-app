@@ -19,10 +19,13 @@ provider:
 
 plugins:
   - serverless-plugin-tracing
+  - serverless-plugin-lambda-insights
 
 functions:
   api:
     handler: handler.handler
     events:
       - httpApi: "*"
+      - sqs: arn:aws:sqs:eu-west-2:108607216059:testQueue
     tracing: true
+    lambdaInsights: true
