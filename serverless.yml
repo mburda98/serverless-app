@@ -6,6 +6,8 @@ provider:
   region: eu-west-2
   runtime: nodejs12.x
   lambdaHashingVersion: "20201221"
+  environment:
+    SQS_URL: { Ref: NewSQSQueue }
   tracing:
     apiGateway: true
     lambda: true
@@ -16,16 +18,37 @@ provider:
         - "xray:PutTelemetryRecords"
       Resource:
         - "*"
+    - Effect: "Allow"
+      Action:
+        - "sqs:*"
+      Resource:
+        Fn::GetAtt: [NewSQSQueue, Arn]
 
 plugins:
   - serverless-plugin-tracing
   - serverless-plugin-lambda-insights
+
+resources:
+  Resources:
+    NewSQSQueue:
+      Type: "AWS::SQS::Queue"
+      Properties:
+        QueueName: test-queue-yaml-new
 
 functions:
   api:
     handler: handler.handler
     events:
       - httpApi: "*"
-      - sqs: arn:aws:sqs:eu-west-2:108607216059:testQueue
+    tracing: true
+    lambdaInsights: true
+  consume:
+    handler: handler.consume
+    events:
+      - sqs:
+          arn:
+            Fn::GetAtt:
+              - NewSQSQueue
+              - Arn
     tracing: true
     lambdaInsights: true

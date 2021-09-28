@@ -7,11 +7,11 @@ const awsMsg = require("aws-sdk");
 const AWS = AWSXRay.captureAWS(awsMsg);
 const sqs = new awsMsg.SQS({ apiVersion: "2012-11-05" });
 
-app.get("/", (req, res, next) => {
+exports.handler = app.get("/", (req, res, next) => {
   // Params object for SQS
   const params = {
     MessageBody: `Message at ${Date()}`,
-    QueueUrl: "https://sqs.eu-west-2.amazonaws.com/108607216059/testQueue",
+    QueueUrl: process.env.SQS_URL,
   };
 
   // Send to SQS
@@ -27,6 +27,18 @@ app.get("/", (req, res, next) => {
       return res.status(200).json({ success: false, message: err });
     });
 });
+
+exports.consume = (event, context, callback) => {
+  const response = {
+    statusCode: 200,
+    body: JSON.stringify({
+      message: "SQS event processed.",
+      input: event,
+    }),
+  };
+  console.info("event:", JSON.stringify(event));
+  callback(null, response);
+};
 
 app.use((req, res, next) => {
   return res.status(404).json({
