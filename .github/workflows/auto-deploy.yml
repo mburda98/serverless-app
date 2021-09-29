@@ -1,6 +1,11 @@
 name: Auto-deploy serverless
 on: push
 jobs:
+  test-run:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Github $GITHUB_REF"
+      - run: echo 'Github2 ${github.ref}'
   prod-deploy:
     if: ${{ github.ref == 'refs/head/master' }}
     runs-on: ubuntu-latest
