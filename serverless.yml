@@ -33,7 +33,7 @@ resources:
     NewSQSQueue:
       Type: "AWS::SQS::Queue"
       Properties:
-        QueueName: test-queue-yaml-new
+        QueueName: ! 'test-queue-yaml-new-${opt:stage}'
 
 functions:
   api:

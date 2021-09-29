@@ -10,7 +10,7 @@ const sqs = new awsMsg.SQS({ apiVersion: "2012-11-05" });
 exports.handler = app.get("/", (req, res, next) => {
   // Params object for SQS
   const params = {
-    MessageBody: `Message at ${Date()}`,
+    MessageBody: `Message at ${Date()} from prod`,
     QueueUrl: process.env.SQS_URL,
   };
 

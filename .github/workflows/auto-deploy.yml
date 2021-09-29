@@ -1,10 +1,7 @@
 name: Auto-deploy serverless
-on:
-  push:
-    branches:
-      - master
+on: push
 jobs:
-  build-deploy:
+  create-env:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -15,6 +12,20 @@ jobs:
         run: npm install -g serverless
       - name: Install packages
         run: npm install
+  prod-deploy:
+    if: ${{ github.ref == 'refs/head/master' }}
+    steps:
+      - name: Set credentials
+        env:
+          AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY_PROD }}
+          AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY_PROD }}
+        run: |
+          serverless config credentials --provider aws --key "$AWS_ACCESS_KEY" --secret "$AWS_SECRET_KEY"
+      - name: Deploy
+        run: serverless deploy --stage prod
+  dev-deploy:
+    if: ${{ github.ref == 'refs/head/dev'}}
+    steps:
       - name: Set credentials
         env:
           AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
@@ -22,4 +33,4 @@ jobs:
         run: |
           serverless config credentials --provider aws --key "$AWS_ACCESS_KEY" --secret "$AWS_SECRET_KEY"
       - name: Deploy
-        run: serverless deploy
+        run: serverless deploy --stage dev
